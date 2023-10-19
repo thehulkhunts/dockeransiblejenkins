@@ -4,7 +4,7 @@ pipeline{
       maven 'maven'
     }
     environment {
-      DOCKER_TAG = getVersion()
+      DOCKER_TAG = ${BUILD_NUMBER} /*getVersion()*/
     }
     stages{
         stage('SCM'){
@@ -28,7 +28,7 @@ pipeline{
             }
             steps{
              script {
-                  sh 'docker build . -t ${DOCKERFILE} '
+                  sh 'docker build . -t ${DOCKERFILE}'
                   dockerImage = docker.image("${DOCKERFILE}")
                   docker.withRegistry('https://index.docker.io/v1/', "docker-cred") {
                    dockerImage.push()
@@ -55,7 +55,7 @@ pipeline{
     }
 }
 
-def getVersion(){
+/*def getVersion(){
     def commitHash = sh label: '', returnStdout: true, script: 'git rev-parse --short HEAD'
     return commitHash
-}
+} */
