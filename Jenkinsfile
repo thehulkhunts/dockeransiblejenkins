@@ -1,7 +1,7 @@
 pipeline{
     agent any
     tools {
-      maven 'maven3'
+      maven 'maven'
     }
     environment {
       DOCKER_TAG = getVersion()
@@ -9,7 +9,7 @@ pipeline{
     stages{
         stage('SCM'){
             steps{
-                git credentialsId: 'github', 
+                git branch: 'master', 
                     url: 'https://github.com/javahometech/dockeransiblejenkins'
             }
         }
@@ -20,13 +20,23 @@ pipeline{
             }
         }
         
+       
         stage('Docker Build'){
+            environment {
+                DOCKERFILE = "kammana/hariapp:${DOCKER_TAG}"
+                REGISTRY_CREDENTIALS = credentials('docker-cred')
+            }
             steps{
-                sh "docker build . -t kammana/hariapp:${DOCKER_TAG} "
+                sh ''' docker build . -t ${DOCKERFILE} 
+                  dockerImage = docker.image("${DOCKERFILE}")
+                  docker.withRegistry('https://index.docker.io/v1/', "docker-cred") {
+                   dockerImage.push()
+                  }
+                '''
             }
         }
         
-        stage('DockerHub Push'){
+       /* stage('DockerHub Push'){
             steps{
                 withCredentials([string(credentialsId: 'docker-hub', variable: 'dockerHubPwd')]) {
                     sh "docker login -u kammana -p ${dockerHubPwd}"
@@ -34,13 +44,13 @@ pipeline{
                 
                 sh "docker push kammana/hariapp:${DOCKER_TAG} "
             }
-        }
+        } */
         
-        stage('Docker Deploy'){
+     /*   stage('Docker Deploy'){
             steps{
               ansiblePlaybook credentialsId: 'dev-server', disableHostKeyChecking: true, extras: "-e DOCKER_TAG=${DOCKER_TAG}", installation: 'ansible', inventory: 'dev.inv', playbook: 'deploy-docker.yml'
             }
-        }
+        } */
     }
 }
 
