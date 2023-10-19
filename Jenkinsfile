@@ -4,7 +4,7 @@ pipeline{
       maven 'maven'
     }
     environment {
-      DOCKER_TAG = ${BUILD_NUMBER} /*getVersion()*/
+      DOCKER_TAG = ${BUILD_NUMBER} 
     }
     stages{
         stage('SCM'){
