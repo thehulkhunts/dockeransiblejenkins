@@ -4,7 +4,7 @@ pipeline{
       maven 'maven'
     }
     environment {
-      DOCKER_TAG = getVersion()
+      DOCKER_TAG = ${BUILD_NUMBER} /*getVersion()*/
     }
     stages{
         stage('SCM'){
@@ -53,7 +53,7 @@ pipeline{
     }
 }
 
-def getVersion(){
+/*def getVersion(){
     def commitHash = sh label: '', returnStdout: true, script: 'git rev-parse --short HEAD'
     return commitHash
-}
+} */
